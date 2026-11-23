@@ -93,12 +93,12 @@ class ChannelManager:
         if not channel:
             return 0
         try:
-            entries = youtube.channel_uploads(channel.url, limit=5)
+            entries = youtube.channel_uploads(channel.url, limit=3)
             with self._lock:
                 channel.last_scan = datetime.now(timezone.utc).isoformat()
                 channel.error = ""
                 channel.name = channel.name or channel.url.split("/")[-1]
-            new_entries = [entry for entry in entries if entry["id"] and entry["id"] not in channel.seen_videos]
+            new_entries = [entry for entry in entries if entry["id"] and entry["id"] not in channel.seen_videos][:1]
             for entry in reversed(new_entries):
                 self.jobs.create_from_url(
                     entry["url"],
