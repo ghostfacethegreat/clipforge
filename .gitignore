@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+data/uploads/*
+data/outputs/*
+data/work/*
+data/jobs.json
+data/channels.json
+data/submissions.json
+!data/*/.gitkeep
+.env
+*.log
+.DS_Store
