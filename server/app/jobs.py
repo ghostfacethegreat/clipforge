@@ -140,7 +140,14 @@ class JobManager:
         try:
             if job.source_url and not job.source_path:
                 self._update(job, status="processing", progress=1, message="Downloading video from link")
-                path, title, _ = youtube.download(job.source_url, UPLOAD_DIR)
+                source_url = job.source_url
+                if youtube.is_channel_url(source_url):
+                    entries = youtube.channel_uploads(source_url, limit=1)
+                    if not entries:
+                        raise RuntimeError("No videos found on that channel")
+                    source_url = entries[0]["url"]
+                    self._update(job, source_url=source_url, filename=entries[0].get("title") or job.filename, message="Found latest channel video")
+                path, title, _ = youtube.download(source_url, UPLOAD_DIR)
                 self._update(job, source_path=str(path), filename=title or job.filename, progress=2, message="Inspecting video")
             else:
                 self._update(job, status="processing", progress=2, message="Inspecting video")
