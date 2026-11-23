@@ -173,10 +173,7 @@ class JobManager:
                 clip.thumbnail_url = f"/api/clips/{clip.id}/thumbnail"
                 with self._lock:
                     self._save()
-            if job.source_url and job.source_path:
-                Path(job.source_path).unlink(missing_ok=True)
-                self._update(job, source_path="", message="Source cleaned up")
-
+            # Keep source for URL jobs so clip edits can re-render; deleted on job.delete().
             if job.auto_publish.enabled:
                 self._progress(job, 98, "Auto-posting clips")
                 campaign = rewards.find_campaign(job.auto_publish.campaign_id) if job.auto_publish.campaign_id else None

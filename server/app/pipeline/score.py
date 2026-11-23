@@ -154,7 +154,7 @@ def find_clips(transcript: Transcript, options) -> list[Clip]:
                 score=score,
                 reason=" · ".join(reasons),
                 transcript=text,
-                words=[word.model_copy() for word in selected],
+                words=[word.model_dump() for word in selected],
                 caption_style=options.caption_style,
                 focus=options.focus,
             )
