@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="A free, local-first workspace for tracking leads, client projects, offers, and real cashflow.">
+  <title>SoloDesk — your work, in one place</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#dashboard" aria-label="SoloDesk home">
+        <span class="brand-mark">S</span>
+        <span><strong>SoloDesk</strong><small>independent work OS</small></span>
+      </a>
+      <nav class="nav">
+        <button class="nav-link active" data-view="dashboard"><span>▦</span> Overview</button>
+        <button class="nav-link" data-view="leads"><span>⌕</span> Leads</button>
+        <button class="nav-link" data-view="projects"><span>▤</span> Projects</button>
+        <button class="nav-link" data-view="money"><span>＄</span> Money</button>
+        <button class="nav-link" data-view="offers"><span>✳</span> Offers</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-card">
+          <span class="status-dot"></span>
+          <div><strong>Local workspace</strong><small>Your records stay in this browser</small></div>
+        </div>
+        <button class="text-button" id="export-json">↧ Export backup</button>
+        <label class="text-button file-label">↥ Import backup<input id="import-json" type="file" accept="application/json"></label>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">SOLO OPERATOR WORKSPACE</p>
+          <h1 id="page-title">Overview</h1>
+          <p class="subheading" id="page-subtitle">A clear view of the work you are building.</p>
+        </div>
+        <div class="top-actions">
+          <span class="today-label" id="today-label"></span>
+          <button class="button button-primary" id="quick-add">＋ Add a lead</button>
+        </div>
+      </header>
+
+      <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+      <section id="view-dashboard" class="view active" aria-labelledby="page-title">
+        <div class="metric-grid">
+          <article class="metric-card"><span>Open leads</span><strong id="metric-leads">0</strong><small>People or businesses to follow up</small></article>
+          <article class="metric-card"><span>Active projects</span><strong id="metric-projects">0</strong><small>Work accepted or being delivered</small></article>
+          <article class="metric-card"><span>Cash received</span><strong id="metric-income">$0.00</strong><small>Only money you recorded as received</small></article>
+          <article class="metric-card"><span>Net recorded cashflow</span><strong id="metric-net">$0.00</strong><small>Received income minus recorded expenses</small></article>
+        </div>
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">NEXT ACTIONS</p><h2>Keep momentum</h2></div><button class="text-button" data-goto="leads">View leads →</button></div>
+            <div id="next-actions" class="stack-list empty-state">Add your first lead to create a next action.</div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">PIPELINE</p><h2>Potential work</h2></div></div>
+            <div class="pipeline-value" id="metric-pipeline">$0.00</div>
+            <p class="muted">Estimated value in open leads. This is not booked revenue or money received.</p>
+            <div class="divider"></div>
+            <div class="mini-row"><span>Recorded expenses</span><strong id="metric-expenses">$0.00</strong></div>
+            <div class="mini-row"><span>Money movements</span><strong id="metric-transactions">0</strong></div>
+          </section>
+        </div>
+        <section class="panel">
+          <div class="panel-heading"><div><p class="eyebrow">START SMALL</p><h2>Your service menu</h2></div><button class="text-button" data-goto="offers">Manage offers →</button></div>
+          <div id="dashboard-offers" class="offer-grid"></div>
+        </section>
+      </section>
+
+      <section id="view-leads" class="view" aria-labelledby="page-title">
+        <div class="section-intro"><div><p class="eyebrow">SALES PIPELINE</p><h2>Leads</h2><p class="muted">Track real prospects, where you found them, and the next useful step.</p></div></div>
+        <div class="content-grid">
+          <form class="panel form-panel" id="lead-form">
+            <h3>Add a lead</h3>
+            <label>Creator or business name<input name="name" maxlength="100" required placeholder="Name or business"></label>
+            <label>Service<select name="service" required><option>Video editing</option><option>Roblox scripting</option><option>Python / AI scripting</option><option>Website / automation</option><option>Other</option></select></label>
+            <label>Lead stage<select name="stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="replied">Replied</option><option value="quoted">Quoted</option><option value="won">Won</option><option value="lost">Lost</option></select></label>
+            <label>Public source or profile URL<input name="sourceUrl" type="url" placeholder="https://..."></label>
+            <label>Estimated quote / budget (USD)<input name="budget" inputmode="decimal" placeholder="Optional"></label>
+            <label>Next action<input name="nextAction" maxlength="240" required placeholder="Example: personalize one message"></label>
+            <label>Follow-up date<input name="followUp" type="date"></label>
+            <label>Notes<textarea name="notes" rows="3" maxlength="1200" placeholder="Only keep details needed to do the work"></textarea></label>
+            <button class="button button-primary" type="submit">Save lead</button>
+          </form>
+          <section class="panel"><div class="panel-heading"><div><p class="eyebrow">YOUR PROSPECTS</p><h3>Lead list</h3></div><span class="count-pill" id="lead-count">0</span></div><div id="lead-list" class="table-wrap"></div></section>
+        </div>
+      </section>
+
+      <section id="view-projects" class="view" aria-labelledby="page-title">
+        <div class="section-intro"><div><p class="eyebrow">DELIVERY TRACKER</p><h2>Projects</h2><p class="muted">Record the scope you agreed to, delivery date, and current status.</p></div></div>
+        <div class="content-grid">
+          <form class="panel form-panel" id="project-form">
+            <h3>Start a project</h3>
+            <label>Client or project name<input name="name" required maxlength="100" placeholder="Client / project"></label>
+            <label>Service<select name="service"><option>Video editing</option><option>Roblox scripting</option><option>Python / AI scripting</option><option>Website / automation</option><option>Other</option></select></label>
+            <label>Agreed scope<textarea name="scope" required rows="4" maxlength="1000" placeholder="Deliverables, revisions, source rights, and what is excluded"></textarea></label>
+            <label>Agreed amount (USD)<input name="agreed" inputmode="decimal" placeholder="Optional"></label>
+            <label>Due date<input name="dueDate" type="date"></label>
+            <label>Status<select name="status"><option value="planned">Planned</option><option value="in-progress">In progress</option><option value="review">Client review</option><option value="delivered">Delivered</option><option value="closed">Closed</option></select></label>
+            <button class="button button-primary" type="submit">Save project</button>
+          </form>
+          <section class="panel"><div class="panel-heading"><div><p class="eyebrow">WORK IN MOTION</p><h3>Project list</h3></div><span class="count-pill" id="project-count">0</span></div><div id="project-list" class="table-wrap"></div></section>
+        </div>
+      </section>
+
+      <section id="view-money" class="view" aria-labelledby="page-title">
+        <div class="section-intro"><div><p class="eyebrow">REAL CASHFLOW</p><h2>Money</h2><p class="muted">Log money only after it actually arrives. Record expenses separately.</p></div></div>
+        <div class="money-summary">
+          <article class="metric-card"><span>Received</span><strong id="money-income">$0.00</strong></article>
+          <article class="metric-card"><span>Expenses</span><strong id="money-expenses">$0.00</strong></article>
+          <article class="metric-card"><span>Net</span><strong id="money-net">$0.00</strong></article>
+        </div>
+        <div class="content-grid">
+          <form class="panel form-panel" id="money-form">
+            <h3>Record a transaction</h3>
+            <label>Type<select name="type"><option value="income">Money received</option><option value="expense">Expense paid</option></select></label>
+            <label>Description<input name="description" required maxlength="160" placeholder="Example: editing pilot payment"></label>
+            <label>Amount (USD)<input name="amount" required inputmode="decimal" placeholder="0.00"></label>
+            <label>Date<input name="date" type="date" required></label>
+            <label>Related project<select name="projectId" id="money-project"><option value="">No project linked</option></select></label>
+            <label>Note<textarea name="note" rows="2" maxlength="500" placeholder="Optional reference, no account numbers"></textarea></label>
+            <button class="button button-primary" type="submit">Save transaction</button>
+          </form>
+          <section class="panel"><div class="panel-heading"><div><p class="eyebrow">LEDGER</p><h3>Recorded transactions</h3></div><button class="text-button" id="export-csv">Export CSV ↧</button></div><div id="money-list" class="table-wrap"></div></section>
+        </div>
+      </section>
+
+      <section id="view-offers" class="view" aria-labelledby="page-title">
+        <div class="section-intro"><div><p class="eyebrow">WHAT YOU SELL</p><h2>Offers</h2><p class="muted">A simple menu to keep your service scopes clear and repeatable.</p></div></div>
+        <div class="panel"><div class="panel-heading"><div><p class="eyebrow">SERVICE MENU</p><h3>Current offers</h3></div></div><div id="offer-list" class="offer-grid"></div></div>
+        <div class="panel callout"><strong>Protect your time and your work.</strong><p>Agree on the exact scope, source-media rights, deadline, revisions, and payment terms before starting. A quote is not cash received. Do not promise virality or guaranteed earnings.</p></div>
+      </section>
+
+      <footer class="footer"><span>SoloDesk 0.1.0 · Free and local-first</span><span>No account · No API key · No payment processing</span></footer>
+    </main>
+  </div>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>

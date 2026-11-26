@@ -1,0 +1,39 @@
+name: SoloDesk checks
+
+on:
+  pull_request:
+    paths:
+      - "solodesk/**"
+      - ".github/workflows/solodesk.yml"
+  push:
+    paths:
+      - "solodesk/**"
+      - ".github/workflows/solodesk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: solodesk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run dependency-free unit tests
+        run: npm test
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check core.js
+      - name: Check static app shell
+        run: |
+          test -s index.html
+          test -s styles.css
+          test -s manifest.webmanifest
+          test -s sw.js
+          test -s README.md
