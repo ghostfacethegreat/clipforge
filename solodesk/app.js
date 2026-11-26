@@ -72,6 +72,14 @@ function tag(label, type) {
   return '<span class="tag ' + css + '">' + escapeHtml(label.replace(/-/g, " ")) + "</span>";
 }
 
+function statusSelect(id, current, values, attribute, accessibleName) {
+  return '<select class="status-select" data-' + attribute + '="' + escapeHtml(id) +
+    '" aria-label="' + escapeHtml(accessibleName) + '">' +
+    values.map((value) => '<option value="' + value + '"' + (value === current ? " selected" : "") +
+      ">" + escapeHtml(value.replace(/-/g, " ")) + "</option>").join("") +
+    "</select>";
+}
+
 function render() {
   const totals = summarize(state);
   document.getElementById("metric-leads").textContent = totals.openLeads;
@@ -123,7 +131,7 @@ function renderLeads() {
     state.leads.map((lead) => '<tr><td><strong>' + escapeHtml(lead.name) + '</strong><span class="table-sub">' +
       (lead.sourceUrl ? '<a href="' + escapeHtml(lead.sourceUrl) + '" target="_blank" rel="noopener noreferrer">Open source ↗</a>' : "No source link") +
       (lead.budgetCents == null ? "" : "<br>Estimate: " + formatMoney(lead.budgetCents)) + "</span></td><td>" +
-      escapeHtml(lead.service) + "</td><td>" + tag(lead.stage, lead.stage) + "</td><td>" +
+      escapeHtml(lead.service) + "</td><td>" + statusSelect(lead.id, lead.stage, ["new", "contacted", "replied", "quoted", "won", "lost"], "lead-stage", "Stage for " + lead.name) + "</td><td>" +
       escapeHtml(lead.nextAction) + (lead.followUp ? '<span class="table-sub">' + escapeHtml(lead.followUp) + "</span>" : "") +
       '</td><td><button class="row-actions danger-link" data-delete-lead="' + escapeHtml(lead.id) + '">Delete</button></td></tr>'
     ).join("") + "</tbody></table>";
@@ -139,7 +147,7 @@ function renderProjects() {
     state.projects.map((project) => '<tr><td><strong>' + escapeHtml(project.name) + "</strong><span class=\"table-sub\">" +
       escapeHtml(project.service || "Unspecified service") + "<br>" + escapeHtml(project.scope) + "</span></td><td>" +
       (project.agreedCents == null ? "Not set" : formatMoney(project.agreedCents)) + "</td><td>" +
-      tag(project.status, project.status) + "</td><td>" + escapeHtml(project.dueDate || "—") +
+      statusSelect(project.id, project.status, ["planned", "in-progress", "review", "delivered", "closed"], "project-status", "Status for " + project.name) + "</td><td>" + escapeHtml(project.dueDate || "—") +
       '</td><td><button class="row-actions danger-link" data-delete-project="' + escapeHtml(project.id) + '">Delete</button></td></tr>'
     ).join("") + "</tbody></table>";
 }
@@ -180,12 +188,12 @@ function renderProjectOptions() {
   select.value = selected;
 }
 
-function onSubmit(form, builder, collection, successText) {
+function onSubmit(form, builder, collectionKey, successText) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const values = Object.fromEntries(new FormData(form).entries());
     try {
-      collection.unshift(builder(values));
+      state[collectionKey].unshift(builder(values));
       saveState();
       form.reset();
       if (form.elements.date) form.elements.date.value = today();
@@ -197,11 +205,30 @@ function onSubmit(form, builder, collection, successText) {
   });
 }
 
-onSubmit(document.getElementById("lead-form"), validateLead, state.leads, "Lead saved. Follow up with one personalized, relevant next step.");
-onSubmit(document.getElementById("project-form"), validateProject, state.projects, "Project saved. Keep its agreed scope and delivery status up to date.");
-onSubmit(document.getElementById("money-form"), (values) => validateTransaction({ ...values, date: values.date || today() }), state.transactions, "Transaction recorded.");
+onSubmit(document.getElementById("lead-form"), validateLead, "leads", "Lead saved. Follow up with one personalized, relevant next step.");
+onSubmit(document.getElementById("project-form"), validateProject, "projects", "Project saved. Keep its agreed scope and delivery status up to date.");
+onSubmit(document.getElementById("money-form"), (values) => validateTransaction({ ...values, date: values.date || today() }), "transactions", "Transaction recorded.");
 
 document.getElementById("money-form").elements.date.value = today();
+
+document.addEventListener("change", (event) => {
+  const leadSelect = event.target.closest("[data-lead-stage]");
+  const projectSelect = event.target.closest("[data-project-status]");
+  if (leadSelect) {
+    const lead = state.leads.find((item) => item.id === leadSelect.dataset.leadStage);
+    if (lead) {
+      lead.stage = leadSelect.value;
+      saveState(); render(); showNotice("Lead stage updated.", "success");
+    }
+  }
+  if (projectSelect) {
+    const project = state.projects.find((item) => item.id === projectSelect.dataset.projectStatus);
+    if (project) {
+      project.status = projectSelect.value;
+      saveState(); render(); showNotice("Project status updated.", "success");
+    }
+  }
+});
 
 document.addEventListener("click", (event) => {
   const nav = event.target.closest("[data-view]");
