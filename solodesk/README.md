@@ -58,3 +58,7 @@ The service worker and app manifest require a secure context (HTTPS or localhost
 Only add prospects from legitimate sources. Keep outreach relevant and personalized. Edit only customer-owned or properly authorized media. Agree on scope, deadline, revisions, cancellation terms, and payment arrangements before starting a job.
 
 SoloDesk never sends messages, publishes content, applies to listings, accepts contracts, or moves money.
+
+## Income strategy
+
+The repository's [Income Engine Playbook](../docs/INCOME_ENGINE_PLAYBOOK.md) consolidates the owner's existing service, commission, product, and clipping tracks into one workflow, with qualification, rights, payment, and cash-received rules.
