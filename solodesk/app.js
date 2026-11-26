@@ -194,7 +194,7 @@ function onSubmit(form, builder, collectionKey, successText) {
     const values = Object.fromEntries(new FormData(form).entries());
     try {
       state[collectionKey].unshift(builder(values));
-      saveState();
+      if (!saveState()) { render(); return; }
       form.reset();
       if (form.elements.date) form.elements.date.value = today();
       render();
@@ -218,14 +218,16 @@ document.addEventListener("change", (event) => {
     const lead = state.leads.find((item) => item.id === leadSelect.dataset.leadStage);
     if (lead) {
       lead.stage = leadSelect.value;
-      saveState(); render(); showNotice("Lead stage updated.", "success");
+      if (!saveState()) { render(); return; }
+      render(); showNotice("Lead stage updated.", "success");
     }
   }
   if (projectSelect) {
     const project = state.projects.find((item) => item.id === projectSelect.dataset.projectStatus);
     if (project) {
       project.status = projectSelect.value;
-      saveState(); render(); showNotice("Project status updated.", "success");
+      if (!saveState()) { render(); return; }
+      render(); showNotice("Project status updated.", "success");
     }
   }
 });
@@ -241,15 +243,18 @@ document.addEventListener("click", (event) => {
   const deleteTransaction = event.target.closest("[data-delete-transaction]");
   if (deleteLead) {
     state.leads = state.leads.filter((item) => item.id !== deleteLead.dataset.deleteLead);
-    saveState(); render(); showNotice("Lead removed.", "success");
+    if (!saveState()) { render(); return; }
+    render(); showNotice("Lead removed.", "success");
   }
   if (deleteProject) {
     state.projects = state.projects.filter((item) => item.id !== deleteProject.dataset.deleteProject);
-    saveState(); render(); showNotice("Project removed. Existing money records remain.", "success");
+    if (!saveState()) { render(); return; }
+    render(); showNotice("Project removed. Existing money records remain.", "success");
   }
   if (deleteTransaction) {
     state.transactions = state.transactions.filter((item) => item.id !== deleteTransaction.dataset.deleteTransaction);
-    saveState(); render(); showNotice("Transaction removed.", "success");
+    if (!saveState()) { render(); return; }
+    render(); showNotice("Transaction removed.", "success");
   }
 });
 
@@ -274,7 +279,8 @@ document.getElementById("import-json").addEventListener("change", async (event) 
     state.projects = imported.projects;
     state.transactions = imported.transactions;
     state.offers = imported.offers;
-    saveState(); render(); showNotice("Backup imported.", "success");
+    if (!saveState()) { render(); return; }
+    render(); showNotice("Backup imported.", "success");
   } catch (error) {
     showNotice(error.message || "Could not import that backup.", "error");
   } finally {
