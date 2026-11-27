@@ -323,3 +323,13 @@ document.getElementById("today-label").textContent = new Intl.DateTimeFormat(und
 const initialView = window.location.hash.replace("#", "");
 setView(views.includes(initialView) ? initialView : "dashboard");
 render();
+
+
+// The app shell includes a service worker for offline use. Register it on
+// supported secure contexts (HTTPS and localhost); the app still works when
+// service workers are unavailable.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch((error) => {
+    console.warn("SoloDesk offline caching is unavailable:", error);
+  });
+}
