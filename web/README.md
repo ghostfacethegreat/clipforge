@@ -34,6 +34,10 @@ Replace the example with the exact public creator-page URL from your own Buy Me 
 
 Buy Me a Coffee is used here for voluntary project support, not as a software-license checkout. Complete payout onboarding and Stripe Express verification in your own account; never put bank details, identity documents, Stripe secrets, or API keys in this frontend repository.
 
+## Deployment metadata
+
+Set `NEXT_PUBLIC_SITE_URL` to the exact public origin (for example, `https://your-domain.example`) in the deployment environment. This value is used to resolve Open Graph and icon URLs. The local development default is `http://localhost:3000`.
+
 ## Build checks
 
 ```bash

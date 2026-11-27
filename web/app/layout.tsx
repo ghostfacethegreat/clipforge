@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   },
   description: "A local-first AI clipping studio for finding moments, styling captions, reframing footage, and exporting vertical videos.",
   applicationName: "ClipForge",
-  metadataBase: new URL("https://github.com/ghostfacethegreat/clipforge"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   openGraph: {
     title: "ClipForge — Find the moments worth keeping",
     description: "Turn long-form footage into reviewed short-form edits with a local-first AI workflow.",
